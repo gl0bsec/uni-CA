@@ -3,6 +3,46 @@ import os
 import pandas as pd
 import ast
 
+def GDELT_valid(updated_tables_path, fips_codes_path, treaty_acronyms=None):
+    # Load the CSV files
+    updated_merged_tables = pd.read_csv(updated_tables_path)
+    fips_country_codes = pd.read_csv(fips_codes_path)
+
+    def parse_date(date_str):
+        try:
+            return pd.to_datetime(date_str.strip(), format='%d %b %Y', errors='coerce')
+        except:
+            return pd.NaT
+
+    # Add parsed date columns to the dataset
+    updated_merged_tables['Parsed Ratification Date'] = updated_merged_tables[
+        'Ratification Date, Accession(a), Succession(d) Date'
+    ].apply(parse_date)
+    updated_merged_tables['Parsed Signature Date'] = updated_merged_tables['Signature Date'].apply(parse_date)
+
+    # Filter dates after 2013
+    filtered_df = updated_merged_tables[updated_merged_tables['Parsed Ratification Date'] > '2013-12-31']
+    
+    # Merge with FIPS country codes
+    merged_df = pd.merge(filtered_df, fips_country_codes, left_on='COUNTRY', right_on='Name', how='left')
+    
+    # Exclude results where the country code is not found
+    merged_df = merged_df.dropna(subset=['FIPS 10-4'])
+    
+    # Filter by treaty acronyms if provided
+    if treaty_acronyms is not None:
+        merged_df = merged_df[merged_df['Treaty Name'].isin(treaty_acronyms)]
+    
+    # Create list of quadruples (FIPS, Treaty Acronym, Ratification Date, Signature Date)
+    quadruples = list(merged_df.apply(lambda row: (
+        row['FIPS 10-4'], 
+        row['Treaty Name'], 
+        row['Parsed Ratification Date'].strftime('%d/%m/%Y'),
+        row['Parsed Signature Date'].strftime('%d/%m/%Y') if pd.notna(row['Parsed Signature Date']) else 'N/A'
+    ), axis=1))
+    
+    return quadruples
+
 def count_rows_average_column_category(directory: str, index_column: str, average_column: str, category_column: str) -> pd.DataFrame:
     # List to hold the data
     data = []

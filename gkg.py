@@ -4,6 +4,7 @@ from download_big_WIP import download_data
 from data_helpers import*
 import os
 from data_wrangling import*
+valid_events = GDELT_valid('updated_merged_tables.csv','fips-10-4-to-iso-country-codes.csv')
 #%%
 # theme = 'HUMAN_RIGHTS'
 input_date = '2/10/2019'
@@ -34,7 +35,8 @@ os.remove('/big_dump')
 download_es_index_to_csv(9200, pwd, index_name, f'{index_name}.csv')
 transform_csv(f'{index_name}.csv').to_csv(f'{index_name}_raw.csv')
 filter_columns(f'{index_name}_raw.csv',f'{index_name}_filtered.csv')
-
+blob ='news-test'
 bucket_name = 'hr_news_1'
-upload_to_gcs(bucket_name, f'{index_name}.csv', f'{index_name}_raw.csv')
-upload_to_gcs(bucket_name, f'{index_name}.csv', f'{index_name}_filtered.csv')
+upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_raw.csv')
+upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_filtered.csv')
+#%% 
