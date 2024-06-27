@@ -1,6 +1,7 @@
 #%% 
 from cloud_functions import*
 from download_big_WIP import download_data
+from data_helpers import*
 import os
 
 # theme = 'HUMAN_RIGHTS'
@@ -10,6 +11,9 @@ download_data(None,int(int(input('How many days? '))/2),input_date,locations_reg
 # filename = str(input('what is the file name?'))
 # file_input_path = filename+".csv"
 
+
+
+#%% 
 bucket_name = 'hr_news_1'
 directory_path = 'big_dump/'
 files = os.listdir(directory_path)
