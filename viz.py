@@ -31,7 +31,7 @@ def interactive_plot_top_tags(df, column, date_column, top_n=10, include_regexes
 
         # Iterate through each row in the specified column
         for items in df_filtered[column].dropna():
-            item_list = items.split(';')
+            item_list = items.split(',')
 
             # Apply include regex filters if specified
             if include_patterns:
