@@ -6,7 +6,7 @@ import pandas as pd
 
 def create_and_load_es_index(address,port, file_path, index_name,pwd):
     es = Elasticsearch(
-        ["https://"+address+":" + str(port)],
+        ["https://localhost:" + str(port)],
         basic_auth=('elastic', pwd),
         verify_certs=False
     )
