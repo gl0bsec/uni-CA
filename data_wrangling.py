@@ -1,3 +1,4 @@
+#%%
 import os
 import pandas as pd
 import ast
@@ -179,17 +180,9 @@ def es_count_average_category_multiple(directory: str, index_column: str, averag
 # print(result_df)
 
 def clean_column(column):
-    """
-    Cleans a column by removing square brackets and single quotes.
-    """
     return column.str.replace(r"[\[\]']", '', regex=True)
 
 def transform_csv(file_path):
-    """
-    Transforms a CSV file into a DataFrame with specific formatting.
-    - Removes square brackets and single quotes from certain columns
-    - Separates the 'TONE' column into individual columns based on dictionary keys
-    """
     # Load the CSV file
     data = pd.read_csv(file_path)
     
@@ -205,6 +198,10 @@ def transform_csv(file_path):
         if col in data.columns:
             data[col] = clean_column(data[col])
     
+    # Format the DATE column
+    if 'DATE' in data.columns:
+        data['DATE'] = pd.to_datetime(data['DATE']).dt.strftime('%d/%m/%Y')
+    
     # Separate the TONE column into individual columns based on the dictionary keys
     if 'TONE' in data.columns:
         tone_data = data['TONE'].apply(ast.literal_eval).apply(pd.Series)
@@ -215,3 +212,12 @@ def transform_csv(file_path):
 # # Usage example
 # file_path = '/path/to/your/csvfile.csv'
 # cleaned_data = transform_csv(file_path)
+
+def filter_columns(input_csv_path, output_csv_path):
+    data = pd.read_csv(input_csv_path)
+    columns_to_keep = ['DATE', 'tone1', 'SOURCES', 'SOURCEURLS', 'country_code', 'THEMES']
+    filtered_data = data[columns_to_keep]
+    filtered_data.to_csv(output_csv_path, index=False)
+    return 
+    
+# %%

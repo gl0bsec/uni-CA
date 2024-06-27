@@ -1,4 +1,3 @@
-# Import stuff
 from collections import Counter
 import pandas as pd
 import networkx as nx
@@ -7,6 +6,7 @@ import warnings
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+from ipywidgets import*
 import ast
 
 def interactive_plot_top_tags(df, column, date_column, top_n=10, include_regexes='', exclude_regexes='', start_date='2019-01-01', end_date='2019-12-31'):
@@ -58,6 +58,7 @@ def interactive_plot_top_tags(df, column, date_column, top_n=10, include_regexes
         plt.ylabel('Frequency')
         plt.xticks(rotation=45, ha='right')
         plt.tight_layout()
+    
         plt.show()
 
     interact(plot,
