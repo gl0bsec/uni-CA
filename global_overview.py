@@ -30,13 +30,3 @@ for file in files:
     create_and_load_es_index(9200, directory_path+file, index_name,pwd)
 
 os.remove('/big_dump')
-
-#%%~
-download_es_index_to_csv(9200, pwd, index_name, f'{index_name}.csv')
-transform_csv(f'{index_name}.csv').to_csv(f'{index_name}_raw.csv')
-filter_columns(f'{index_name}_raw.csv',f'{index_name}_filtered.csv')
-blob ='news-test'
-bucket_name = 'hr_news_1'
-upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_raw.csv')
-upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_filtered.csv')
-#%% 
