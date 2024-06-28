@@ -5,7 +5,6 @@ from data_helpers import*
 import os
 from data_wrangling import*
 import datetime as dt
-valid_events = GDELT_valid('updated_merged_tables.csv','fips-10-4-to-iso-country-codes.csv')
 #%%
 # theme = 'HUMAN_RIGHTS'
 last_updated='28/06/2024'
