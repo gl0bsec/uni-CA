@@ -7,7 +7,7 @@ import os
 from data_wrangling import *
 from tqdm import tqdm
 import shutil
-treaties = ['CAT']
+treaties = []
 valid_events = GDELT_valid('updated_merged_tables.csv', 'fips-10-4-to-iso-country-codes.csv',)
 
 

@@ -16,7 +16,7 @@ from ipywidgets import interact
 sns.set(style="whitegrid")
 
 def interactive_plot_top_tags(df, column, date_column, top_n=10, include_regexes='', exclude_regexes='', start_date='2019-01-01', end_date='2019-12-31'):
-    def plot(top_n=10, include_regexes='', exclude_regexes='', start_date='2019-01-01', end_date='2019-12-31'):
+    def plot(top_n=10, include_regexes='', exclude_regexes='', start_date=None, end_date=None):
         # Convert the date column to datetime format
         df[date_column] = pd.to_datetime(df[date_column], format='%d/%m/%Y')
 
@@ -74,7 +74,7 @@ def interactive_plot_top_tags(df, column, date_column, top_n=10, include_regexes
     )
 
 def interactive_plot_time_series(df, target_column, date_column, start_date=None, end_date=None, include_regex='', exclude_regex=''):
-    def plot(start_date='2019-01-01', end_date='2019-12-31', include_regex='', exclude_regex=''):
+    def plot(start_date=None, end_date=None, include_regex='', exclude_regex=''):
         # Convert the date column to datetime format
         df[date_column] = pd.to_datetime(df[date_column], format='%d/%m/%Y')
 
