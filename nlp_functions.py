@@ -9,6 +9,51 @@ from nltk.corpus import stopwords
 import plotly.express as px
 from collections import Counter
 from nltk.corpus import stopwords
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from bertopic import BERTopic
+from sklearn.feature_extraction.text import CountVectorizer
+from sentence_transformers import SentenceTransformer
+
+def apply_bertopic(df, text_column):
+    # Initialize the SentenceTransformer model
+    sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
+    
+    # Extract the text data from the DataFrame
+    texts = df[text_column].tolist()
+    
+    # Initialize BERTopic
+    topic_model = BERTopic(embedding_model=sentence_model)
+    
+    # Fit the model on the text data
+    topics, probs = topic_model.fit_transform(texts)
+    
+    # Add the topics and probabilities to the DataFrame
+    df['BERTopic_Topics'] = topics
+    df['BERTopic_Probs'] = probs.tolist()  # Convert numpy array to list
+    
+    # Optionally, get the topic representations (words and their importance in each topic)
+    topic_info = topic_model.get_topic_info()
+    
+    return df, topic_model
+
+def apply_vader_sentiment(df, text_column):
+    # Initialize the VADER sentiment intensity analyzer
+    analyzer = SentimentIntensityAnalyzer()
+    
+    # Function to analyze sentiment for a single text entry
+    def analyze_sentiment(text):
+        return analyzer.polarity_scores(text)
+    
+    # Apply sentiment analysis to the text column
+    sentiment_scores = df[text_column].apply(analyze_sentiment)
+    
+    # Convert the sentiment scores to a DataFrame
+    sentiment_df = sentiment_scores.apply(pd.Series)
+    
+    # Append the sentiment scores to the original DataFrame
+    df = pd.concat([df, sentiment_df], axis=1)
+    
+    return df
 
 def extract_named_entities_hf_split(csv_file, column_name):
     # Load the Hugging Face model and tokenizer
