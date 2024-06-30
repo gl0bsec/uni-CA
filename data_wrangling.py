@@ -3,6 +3,68 @@ import os
 import pandas as pd
 import ast
 
+def process_csv(input_file_path, output_file_path):
+    # Define the list of stopwords
+    stopwords = set([
+        'i', 'im', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself',
+        'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself',
+        'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that',
+        'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+        'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as',
+        'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through',
+        'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off',
+        'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how',
+        'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not',
+        'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should',
+        'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', 'couldn', 'didn', 'doesn', 'hadn', 'hasn',
+        'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn',
+        'dms', 'nytimes', 'bbc', 'apnews', 'outlookindia', 'two', '10', '000', '##'
+    ])
+
+    # Load the input CSV file
+    data = pd.read_csv(input_file_path)
+
+    # Create a list to store the new rows without stopwords
+    filtered_source_target_data = []
+
+    for index, row in data.iterrows():
+        if pd.notna(row['entities']) and pd.notna(row['entity_types']):
+            entities = row['entities'].split(', ')
+            entity_types = row['entity_types'].split(', ')
+            
+            # Filter out stopwords and ensure the lengths match
+            filtered_entities = []
+            filtered_entity_types = []
+            for entity, entity_type in zip(entities, entity_types):
+                if entity.lower() not in stopwords:
+                    filtered_entities.append(entity)
+                    filtered_entity_types.append(entity_type)
+            
+            # Ensure entities and entity_types have the same length
+            min_length = min(len(filtered_entities), len(filtered_entity_types))
+            
+            if min_length > 1:
+                for i in range(min_length - 1):
+                    new_row = row.to_dict()
+                    new_row.update({
+                        'source_entity': filtered_entities[i],
+                        'source_type': filtered_entity_types[i],
+                        'target_entity': filtered_entities[i+1],
+                        'target_type': filtered_entity_types[i+1]
+                    })
+                    filtered_source_target_data.append(new_row)
+
+    # Convert the list of dictionaries to a new DataFrame
+    filtered_source_target_df = pd.DataFrame(filtered_source_target_data)
+
+    # Reformat the timestamp column
+    filtered_source_target_df['timestamp'] = pd.to_datetime(filtered_source_target_df['timestamp'], errors='coerce', utc=True)
+    filtered_source_target_df['timestamp'] = filtered_source_target_df['timestamp'].dt.strftime('%Y-%m-%dT%H:%M:%S%z')
+
+    # Save the enhanced DataFrame to a new CSV file
+    filtered_source_target_df.to_csv(output_file_path, index=False)
+    return output_file_path
+
 def GDELT_valid(updated_tables_path, fips_codes_path, treaty_acronyms=None):
     # Load the CSV files
     updated_merged_tables = pd.read_csv(updated_tables_path)
