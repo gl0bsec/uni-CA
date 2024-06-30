@@ -4,3 +4,4 @@
 - GDELT
 - Telegram
 - Mediacloud 
+- Discord
