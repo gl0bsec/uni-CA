@@ -10,9 +10,9 @@ import plotly.express as px
 from collections import Counter
 from nltk.corpus import stopwords
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from bertopic import BERTopic
-from sklearn.feature_extraction.text import CountVectorizer
-from sentence_transformers import SentenceTransformer
+# from bertopic import BERTopic
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sentence_transformers import SentenceTransformer
 
 def apply_bertopic(df, text_column):
     # Initialize the SentenceTransformer model
