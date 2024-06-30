@@ -1,5 +1,5 @@
 # Collection of media for the human rights treaties project
-#%%
+
 from cloud_functions import *
 from download_big_WIP import download_data
 from data_helpers import *
@@ -7,14 +7,12 @@ import os
 from data_wrangling import *
 from tqdm import tqdm
 import shutil
-treaties = []
-valid_events = GDELT_valid('updated_merged_tables.csv', 'fips-10-4-to-iso-country-codes.csv',)
+treaties = ['CAT']
+valid_events = GDELT_valid('updated_merged_tables.csv', 'fips-10-4-to-iso-country-codes.csv',treaty_acronyms=treaties)
 
-
-#%%
 # Download data for the treaties 
 n = int(int(input('How many days? ')) / 2)
-pwd = None
+pwd = "_b2x4M4+wjlfiJVTUPLI"
 directory_path = 'big_dump/'
 
 def create_index_name(date, query, prefix):
@@ -27,7 +25,7 @@ for event in tqdm(valid_events, desc=f"Downloading news coverage for {len(valid_
     input_date = event[2]
     country = f'#{event[0]}#'
     download_data(None, n, input_date, locations_regex=country)
-    index_name = create_index_name(input_date, country, f'{event[1].lower()}_{n*2}days')
+    index_name = create_index_name(input_date, country, f'{event[1].lower()}_{n*2}days_test')
     files = os.listdir(directory_path)
     for file in files:
         create_and_load_es_index(9200, directory_path + file, index_name, pwd)
@@ -42,5 +40,3 @@ for event in tqdm(valid_events, desc=f"Downloading news coverage for {len(valid_
     blob = 'news-test'
     upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_rawGDELT.csv')
     upload_to_gcs(bucket_name, f'{index_name}.csv', f'{blob}/{index_name}_filteredGDELT.csv')
-
-# %%

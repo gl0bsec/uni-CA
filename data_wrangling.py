@@ -249,6 +249,33 @@ def transform_csv(file_path):
     
     return data
 
+def transform_json(file_path):
+    # Load the CSV file
+    data = pd.read_json(file_path)
+    
+    # List of columns to clean
+    columns_to_clean = [
+        'THEMES', 'PERSONS', 'ORGANIZATIONS', 'CAMEOEVENTIDS', 'SOURCES',
+        'country_code', 'adm1_code', 'latitude', 'longitude', 'feature_id',
+        'location_type', 'location_name'
+    ]
+    
+    # Clean the specified columns
+    for col in columns_to_clean:
+        if col in data.columns:
+            data[col] = clean_column(data[col])
+    
+    # Format the DATE column
+    if 'DATE' in data.columns:
+        data['DATE'] = pd.to_datetime(data['DATE']).dt.strftime('%d/%m/%Y')
+    
+    # Separate the TONE column into individual columns based on the dictionary keys
+    if 'TONE' in data.columns:
+        tone_data = data['TONE'].apply(ast.literal_eval).apply(pd.Series)
+        data = pd.concat([data.drop(columns=['TONE']), tone_data], axis=1)
+    
+    return data
+
 # # Usage example
 # file_path = '/path/to/your/csvfile.csv'
 # cleaned_data = transform_csv(file_path)
@@ -259,5 +286,36 @@ def filter_columns(input_csv_path, output_csv_path):
     filtered_data = data[columns_to_keep]
     filtered_data.to_csv(output_csv_path, index=False)
     return 
-    
+
+def filter_columns_json(input_csv_path, output_csv_path):
+    data = pd.read_json(input_csv_path)
+    columns_to_keep = ['DATE', 'tone1', 'SOURCES', 'SOURCEURLS', 'country_code', 'THEMES']
+    filtered_data = data[columns_to_keep]
+    filtered_data.to_csv(output_csv_path, index=False)
+    return 
+
+
+def process_gdelt_json_with_locations(input_file_path, output_file_path):
+    # Load the JSON file
+    with open(input_file_path, 'r') as file:
+        data = json.load(file)
+
+    # Create a DataFrame from the JSON data
+    df = pd.json_normalize(data)
+
+    # Split the TONE field into individual columns
+    tone_columns = ['TONE_AvgTone', 'TONE_PositiveScore', 'TONE_NegativeScore', 'TONE_Polarity', 'TONE_ActivityRefDensity', 'TONE_Gram']
+    df[tone_columns] = df['TONE'].str.split(',', expand=True)
+
+    # Process the LOCATIONS field to extract country codes
+    df['LOCATIONS'] = df['LOCATIONS'].fillna('')
+    df['CountryCodes'] = df['LOCATIONS'].apply(lambda x: ';'.join(set([loc.split('#')[2] for loc in x.split(';') if loc])))
+
+    # Select the desired columns
+    selected_columns = ['DATE', 'SOURCES', 'SOURCEURLS', 'CountryCodes', 'ORGANIZATIONS','THEMES'] + tone_columns
+    df_selected = df[selected_columns]
+
+    # Save the DataFrame to a CSV file
+    df_selected.to_csv(output_file_path, index=False)
+
 # %%

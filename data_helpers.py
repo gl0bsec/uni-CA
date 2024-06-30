@@ -339,4 +339,3 @@ def download_es_data(port, index_name, output_format, query=None, output_file=No
 # index_name = '7day_gkg_test_bruh2'
 # create_and_load_es_index(9200, file_path, index_name)
 
-# %%
